@@ -23,6 +23,12 @@ resource "google_compute_instance_template" "nomad" {
   name   = "nomad-instance-template"
   region = var.region
 
+  lifecycle {
+    # Avoid errors where terraform tries to destroy/create the template on
+    # subsequent runs and fails due to it being in use
+    ignore_changes = [network_interface]
+  }
+
   disk {
     auto_delete  = true
     boot         = true
@@ -77,6 +83,13 @@ resource "google_compute_instance_group_manager" "nomad" {
 
 resource "google_compute_firewall" "nomad" {
   name          = "fw-allow-health-check"
+
+  lifecycle {
+    # Avoid always recreating the firewall rule because GCP dealiases the
+    # network
+    ignore_changes = [network]
+  }
+
   direction     = "INGRESS"
   network       = "global/networks/default"
   priority      = 1000
@@ -170,7 +183,7 @@ resource "google_dns_record_set" "default" {
 
 # Workload Identity Pool
 resource "google_iam_workload_identity_pool" "nomad" {
-  workload_identity_pool_id = "nomad-pool-8" #lol the orig was deleted but would 409 if reused
+  workload_identity_pool_id = "nomad-pool-9" #lol the orig was deleted but would 409 if reused
 }
 
 # Workload Identity Provider
