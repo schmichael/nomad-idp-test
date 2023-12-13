@@ -21,12 +21,11 @@ job "nginx-proxy" {
 
       identity {
         env  = true
-        file = true
       }
 
       resources {
-        cpu    = 500
-        memory = 256
+        cpu    = 200
+        memory = 200
       }
 
       template {
@@ -67,6 +66,18 @@ http {
     location / {
       proxy_pass http://unix:/secrets/api.sock:$request_uri;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+      proxy_buffering off;
+
+      # The Upgrade and Connection headers are used to establish
+      # a WebSockets connection.
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+
+      # The default Origin header will be the proxy address, which
+      # will be rejected by Nomad. It must be rewritten to be the
+      # host address instead.
+      proxy_set_header Origin "${scheme}://${proxy_host}";
     }
   }
 }

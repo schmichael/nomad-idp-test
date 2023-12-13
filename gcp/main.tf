@@ -1,3 +1,5 @@
+resource "random_pet" "main" {}
+
 resource "google_compute_managed_ssl_certificate" "nomad" {
   name = "nomad-ssl-cert"
 
@@ -17,68 +19,6 @@ resource "google_compute_target_https_proxy" "nomad" {
   depends_on = [
     google_compute_managed_ssl_certificate.nomad
   ]
-}
-
-resource "google_compute_instance_template" "nomad" {
-  name   = "nomad-instance-template"
-  region = var.region
-
-  lifecycle {
-    # Avoid errors where terraform tries to destroy/create the template on
-    # subsequent runs and fails due to it being in use
-    ignore_changes = [network_interface]
-  }
-
-  disk {
-    auto_delete  = true
-    boot         = true
-    device_name  = "persistent-disk-0"
-    mode         = "READ_WRITE"
-    source_image = "projects/debian-cloud/global/images/family/debian-11"
-    disk_size_gb = 40
-    type         = "PERSISTENT"
-  }
-
-  machine_type = "n1-standard-1"
-
-  network_interface {
-    access_config {
-      network_tier = "PREMIUM"
-    }
-    network    = "global/networks/default"
-    subnetwork = "regions/${var.region}/subnetworks/default"
-  }
-
-  scheduling {
-    automatic_restart   = true
-    on_host_maintenance = "MIGRATE"
-    provisioning_model  = "STANDARD"
-  }
-
-  service_account {
-    email  = "default"
-    scopes = ["https://www.googleapis.com/auth/devstorage.read_only", "https://www.googleapis.com/auth/logging.write", "https://www.googleapis.com/auth/monitoring.write", "https://www.googleapis.com/auth/pubsub", "https://www.googleapis.com/auth/service.management.readonly", "https://www.googleapis.com/auth/servicecontrol", "https://www.googleapis.com/auth/trace.append"]
-  }
-
-  tags = ["allow-health-check"]
-}
-
-resource "google_compute_instance_group_manager" "nomad" {
-  name = "nomad-igm"
-  zone = var.zone
-
-  named_port {
-    name = "http"
-    port = 80
-  }
-
-  version {
-    instance_template = google_compute_instance_template.nomad.id
-    name              = "primary"
-  }
-
-  base_instance_name = "vm"
-  target_size        = 1
 }
 
 resource "google_compute_firewall" "nomad" {
@@ -179,24 +119,4 @@ resource "google_dns_record_set" "default" {
   type         = "A"
   rrdatas      = [google_compute_global_address.nomad.address]
   ttl          = 86400
-}
-
-# Workload Identity Pool
-resource "google_iam_workload_identity_pool" "nomad" {
-  workload_identity_pool_id = "nomad-pool-9" #lol the orig was deleted but would 409 if reused
-}
-
-# Workload Identity Provider
-resource "google_iam_workload_identity_pool_provider" "nomad_provider" {
-  workload_identity_pool_id          = google_iam_workload_identity_pool.nomad.workload_identity_pool_id
-  workload_identity_pool_provider_id = "nomad-provider"
-  display_name                       = "Nomad Provider"
-  description                        = "OIDC identity pool provider"
-  attribute_mapping = {
-    "google.subject" = "assertion.sub"
-  }
-  oidc {
-    allowed_audiences = ["gcp"]
-    issuer_uri        = local.issuer_uri
-  }
 }

@@ -7,7 +7,7 @@ job "gcs" {
 
       config {
         command        = "/bin/sh"
-        args           = ["-c", "echo running && gcloud auth login --cred-file=/local/cred.json && gcloud storage cp /local/test.txt gs://hcfb0499cb13846868d0ad659"]
+        args           = ["-c", "echo 'running; check stderr' && gcloud auth login --cred-file=/local/cred.json && gcloud storage cp /local/test.txt gs://hcfb0499cb13846868d0ad659"]
         image          = "google/cloud-sdk:latest"
         auth_soft_fail = true
       }
