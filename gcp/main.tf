@@ -1,5 +1,7 @@
 resource "random_pet" "main" {}
 
+data "google_project" "main" {}
+
 resource "google_compute_managed_ssl_certificate" "nomad" {
   name = "nomad-ssl-cert"
 

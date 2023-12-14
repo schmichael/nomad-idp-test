@@ -17,6 +17,6 @@ Cloud services using Google's Federated Workload Identities.
 - Terraform
  - `compute.tf` - Instance group
  - `iam.tf` - Identity management
- - `outputs.tf` - Outputs for future user interactions
+ - `outputs.tf` - Outputs for `gcs.nomad.hcl` variable inputs
  - `provider.tf` - Terraform provider
  - `variables.tf` - Variables
