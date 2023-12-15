@@ -33,7 +33,7 @@ job "gcs-job" {
       meta {
         project      = var.gcp_project_id
         bucket       = var.gcs_bucket
-        wid_pool     = var.wid_provider
+        wid_provider = var.wid_provider
         service_acct = var.service_account
       }
 

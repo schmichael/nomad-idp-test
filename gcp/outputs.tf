@@ -22,3 +22,8 @@ output "service_account" {
   value = google_service_account.nomad.email
   description = "Google Service Account Email for use in gcs.nomad.hcl"
 }
+
+output "oidc_issuer_uri" {
+  value = local.issuer_uri
+  description = "Put this in your Nomad agent config file."
+}
