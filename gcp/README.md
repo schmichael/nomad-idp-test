@@ -15,6 +15,7 @@ Cloud services using Google's Federated Workload Identities.
  - `gcs.nomad.hcl` - Puts `test.txt` into GCS using its Workload Identity
  - `proxy.nomad.hcl` - **REQUIRED** Runs an nginx proxy for ui & OIDC
 - Terraform
+ - `agent.hcl.tftpl` - Terraform Template for creating the Agent config
  - `compute.tf` - Instance group
  - `iam.tf` - Identity management
  - `outputs.tf` - Outputs for `gcs.nomad.hcl` variable inputs

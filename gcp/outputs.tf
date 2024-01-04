@@ -1,3 +1,8 @@
+resource "local_file" "agenthcl" {
+  content  = templatefile("agent.hcl.tftpl", { oidc_issuer = local.issuer_uri })
+  filename = "agent.hcl"
+}
+
 output "random_name" {
   value = random_pet.main.id
   description = "Random pet name used for some resources. Informational only."
